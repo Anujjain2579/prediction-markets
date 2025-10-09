@@ -285,6 +285,138 @@
             color: #721c24;
         }
 
+        .result-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .result-win {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .result-loss {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .result-partial {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .result-pending {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .profit-loss {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .profit {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .loss {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .update-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .update-btn:hover {
+            background: #5568d3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #667eea;
+            margin: 0;
+        }
+
+        .close-modal {
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
         .alert {
             padding: 15px;
             border-radius: 6px;
@@ -404,6 +536,14 @@
                     <div class="stat-value" id="totalInsights">0</div>
                     <div class="stat-label">Market Insights</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="winRate">0%</div>
+                    <div class="stat-label">Win Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPnL">$0</div>
+                    <div class="stat-label">Total P&L</div>
+                </div>
             </div>
         </div>
 
@@ -491,6 +631,52 @@
         <div class="card">
             <h2>📋 Trade History</h2>
             <div class="trade-list" id="tradeList"></div>
+        </div>
+    </div>
+
+    <!-- Update Trade Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Update Trade</h3>
+                <button class="close-modal" onclick="closeUpdateModal()">&times;</button>
+            </div>
+            <form id="updateForm">
+                <input type="hidden" id="updateIndex">
+                
+                <div class="form-group">
+                    <label>Result</label>
+                    <select id="updateResult" required>
+                        <option value="">Pending</option>
+                        <option value="Win">Win ✅</option>
+                        <option value="Loss">Loss ❌</option>
+                        <option value="Partial">Partial Win 🟡</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="updateProfitLossGroup">
+                    <label>Profit/Loss ($)</label>
+                    <input type="number" id="updateProfitLoss" step="0.01" placeholder="25.51">
+                </div>
+
+                <div class="form-group">
+                    <label>Post-Trade Odds (%) - Optional</label>
+                    <input type="number" id="updatePostOdds" step="0.01" placeholder="63">
+                </div>
+
+                <div class="form-group">
+                    <label>Post-Trade Value ($) - Optional</label>
+                    <input type="number" id="updatePostValue" step="0.01" placeholder="20.79">
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Notes - Optional</label>
+                    <textarea id="updateNotes" placeholder="Add any additional observations or notes about how this trade resolved..."></textarea>
+                </div>
+
+                <button type="submit" class="btn" id="updateTradeBtn">Save Update</button>
+                <button type="button" class="btn btn-secondary" onclick="closeUpdateModal()">Cancel</button>
+            </form>
         </div>
     </div>
 
@@ -665,7 +851,7 @@
             document.getElementById('totalTrades').textContent = trades.length;
             
             const totalInvested = trades.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            document.getElementById('totalInvested').textContent = `$${totalInvested.toFixed(2)}`;
+            document.getElementById('totalInvested').textContent = `${totalInvested.toFixed(2)}`;
             
             const avgOdds = trades.length > 0 
                 ? trades.reduce((sum, t) => sum + parseFloat(t.entryOdds), 0) / trades.length 
@@ -673,6 +859,22 @@
             document.getElementById('avgOdds').textContent = `${avgOdds.toFixed(1)}%`;
             
             document.getElementById('totalInsights').textContent = insights.length;
+
+            // Calculate win rate
+            const resolvedTrades = trades.filter(t => t.result && t.result !== '');
+            const wins = trades.filter(t => t.result === 'Win').length;
+            const winRate = resolvedTrades.length > 0 ? (wins / resolvedTrades.length) * 100 : 0;
+            document.getElementById('winRate').textContent = `${winRate.toFixed(1)}%`;
+
+            // Calculate total P&L
+            const totalPnL = trades.reduce((sum, t) => {
+                if (t.profitLoss) {
+                    return sum + parseFloat(t.profitLoss);
+                }
+                return sum;
+            }, 0);
+            document.getElementById('totalPnL').textContent = `${totalPnL.toFixed(2)}`;
+            document.getElementById('totalPnL').style.color = totalPnL >= 0 ? '#28a745' : '#dc3545';
         }
 
         function renderTrades() {
@@ -688,12 +890,21 @@
                 const oddsChange = hasMarketImpact ? (parseFloat(trade.postOdds) - parseFloat(trade.entryOdds)).toFixed(2) : null;
                 const valueChange = hasMarketImpact ? (parseFloat(trade.postValue) - parseFloat(trade.amount)).toFixed(2) : null;
                 
+                const resultBadge = trade.result ? `<span class="result-badge result-${trade.result.toLowerCase()}">${trade.result}</span>` : '<span class="result-badge result-pending">Pending</span>';
+                
+                const profitLossHtml = trade.profitLoss ? `
+                    <div class="profit-loss ${parseFloat(trade.profitLoss) >= 0 ? 'profit' : 'loss'}">
+                        P&L: ${parseFloat(trade.profitLoss) >= 0 ? '+' : ''}${parseFloat(trade.profitLoss).toFixed(2)}
+                    </div>
+                ` : '';
+                
                 return `
                     <div class="trade-item">
                         <div class="trade-header">
                             <div>
                                 <div class="trade-title">${trade.marketName}</div>
                                 <span class="position-badge position-${trade.position.toLowerCase()}">${trade.position}</span>
+                                ${resultBadge}
                             </div>
                             <div class="trade-date">${new Date(trade.date).toLocaleDateString()}</div>
                         </div>
@@ -701,7 +912,7 @@
                         <div class="trade-details">
                             <div class="detail-item">
                                 <div class="detail-label">Amount Invested</div>
-                                <div class="detail-value">$${parseFloat(trade.amount).toFixed(2)}</div>
+                                <div class="detail-value">${parseFloat(trade.amount).toFixed(2)}</div>
                             </div>
                             <div class="detail-item">
                                 <div class="detail-label">Entry Odds</div>
@@ -714,16 +925,18 @@
                                 </div>
                                 <div class="detail-item">
                                     <div class="detail-label">Post-Trade Value</div>
-                                    <div class="detail-value">$${parseFloat(trade.postValue).toFixed(2)}</div>
+                                    <div class="detail-value">${parseFloat(trade.postValue).toFixed(2)}</div>
                                 </div>
                             ` : ''}
                         </div>
+                        
+                        ${profitLossHtml}
                         
                         ${hasMarketImpact ? `
                             <div class="market-impact">
                                 <div class="market-impact-title">⚡ Market Impact</div>
                                 <div class="market-impact-details">
-                                    Odds moved by ${oddsChange}% • Position value changed by $${valueChange}
+                                    Odds moved by ${oddsChange}% • Position value changed by ${valueChange}
                                     ${Math.abs(oddsChange) > 5 ? ' • Significant market impact detected' : ''}
                                 </div>
                             </div>
@@ -734,7 +947,12 @@
                             <div class="reasoning-text">${trade.reasoning}</div>
                         </div>
                         
-                        <button class="delete-btn" onclick="deleteTrade(${index})">Delete Trade</button>
+                        ${notesHtml}
+                        
+                        <div class="action-buttons">
+                            <button class="update-btn" onclick="openUpdateModal(${index})">Update Trade</button>
+                            <button class="delete-btn" onclick="deleteTrade(${index})">Delete Trade</button>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -775,6 +993,8 @@
                 postOdds: document.getElementById('postOdds').value,
                 postValue: document.getElementById('postValue').value,
                 reasoning: document.getElementById('reasoning').value,
+                result: document.getElementById('result').value,
+                profitLoss: document.getElementById('profitLoss').value,
                 date: new Date().toISOString()
             };
             
@@ -794,6 +1014,95 @@
             
             btn.disabled = false;
             btn.textContent = 'Add Trade';
+        });
+
+        // Show/hide profit/loss field based on result selection
+        document.getElementById('result').addEventListener('change', (e) => {
+            const profitLossGroup = document.getElementById('profitLossGroup');
+            if (e.target.value && e.target.value !== '') {
+                profitLossGroup.style.display = 'block';
+            } else {
+                profitLossGroup.style.display = 'none';
+            }
+        });
+
+        // Update modal functions
+        function openUpdateModal(index) {
+            const trade = trades[index];
+            const modal = document.getElementById('updateModal');
+            
+            document.getElementById('updateIndex').value = index;
+            document.getElementById('updateResult').value = trade.result || '';
+            document.getElementById('updateProfitLoss').value = trade.profitLoss || '';
+            document.getElementById('updatePostOdds').value = trade.postOdds || '';
+            document.getElementById('updatePostValue').value = trade.postValue || '';
+            document.getElementById('updateNotes').value = trade.notes || '';
+            
+            // Show/hide profit/loss based on current result
+            const profitLossGroup = document.getElementById('updateProfitLossGroup');
+            if (trade.result && trade.result !== '') {
+                profitLossGroup.style.display = 'block';
+            } else {
+                profitLossGroup.style.display = 'none';
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeUpdateModal() {
+            document.getElementById('updateModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('updateModal');
+            if (event.target == modal) {
+                closeUpdateModal();
+            }
+        }
+
+        // Handle update result change
+        document.getElementById('updateResult').addEventListener('change', (e) => {
+            const profitLossGroup = document.getElementById('updateProfitLossGroup');
+            if (e.target.value && e.target.value !== '') {
+                profitLossGroup.style.display = 'block';
+            } else {
+                profitLossGroup.style.display = 'none';
+            }
+        });
+
+        // Handle update form submission
+        document.getElementById('updateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('updateTradeBtn');
+            btn.disabled = true;
+            btn.innerHTML = 'Saving... <span class="loading"></span>';
+            
+            const index = parseInt(document.getElementById('updateIndex').value);
+            const trade = trades[index];
+            
+            // Update trade with new values
+            trade.result = document.getElementById('updateResult').value;
+            trade.profitLoss = document.getElementById('updateProfitLoss').value;
+            trade.postOdds = document.getElementById('updatePostOdds').value || trade.postOdds;
+            trade.postValue = document.getElementById('updatePostValue').value || trade.postValue;
+            trade.notes = document.getElementById('updateNotes').value;
+            trade.lastUpdated = new Date().toISOString();
+            
+            const success = await saveDataToGitHub(`Updated trade: ${trade.marketName}`);
+            
+            if (success) {
+                showStatus('tradeStatus', 'Trade updated successfully!', 'success');
+                updateStats();
+                renderTrades();
+                closeUpdateModal();
+            } else {
+                showStatus('tradeStatus', 'Error updating trade', 'error');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Save Update';
         });
 
         document.getElementById('insightForm').addEventListener('submit', async (e) => {
