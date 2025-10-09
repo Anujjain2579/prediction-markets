@@ -1,16 +1,5 @@
 {
-  "trades": [
-    {
-      "marketName": "Imelda Hurricane Category 3",
-      "position": "No",
-      "amount": "10.54",
-      "entryOdds": "87",
-      "postOdds": "",
-      "postValue": "12",
-      "reasoning": "As Imelda turned east-northeast and moved away from the U.S. coast, it encountered high wind shear",
-      "date": "2025-10-09T18:54:14.774Z"
-    }
-  ],
+  "trades": [],
   "insights": [
     {
       "title": "Reaching Category 3 Threshold is tough",
@@ -18,5 +7,5 @@
       "date": "2025-10-09T18:54:07.004Z"
     }
   ],
-  "lastUpdated": "2025-10-09T19:05:19.642Z"
+  "lastUpdated": "2025-10-09T19:05:23.900Z"
 }
