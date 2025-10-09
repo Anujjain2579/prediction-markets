@@ -1,6 +1,16 @@
 {
   "trades": [
     {
+      "marketName": "Imelda Hurricane Category 3",
+      "position": "No",
+      "amount": "10.54",
+      "entryOdds": "87",
+      "postOdds": "",
+      "postValue": "",
+      "reasoning": "As Imelda turned east-northeast and moved away from the U.S. coast, it encountered high wind shear",
+      "date": "2025-10-09T20:10:25.548Z"
+    },
+    {
       "marketName": "Jerry Hurricane Category 2",
       "position": "No",
       "amount": "24.49",
@@ -18,5 +28,5 @@
       "date": "2025-10-09T18:54:07.004Z"
     }
   ],
-  "lastUpdated": "2025-10-09T20:07:41.290Z"
+  "lastUpdated": "2025-10-09T20:10:25.548Z"
 }
