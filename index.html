@@ -449,6 +449,21 @@
                     <textarea id="reasoning" required placeholder="Referenced Google WeatherLab chart showing low probability of intensification..."></textarea>
                 </div>
 
+                <div class="form-group">
+                    <label>Result (Optional - Update after trade resolves)</label>
+                    <select id="result">
+                        <option value="">Pending</option>
+                        <option value="Win">Win ✅</option>
+                        <option value="Loss">Loss ❌</option>
+                        <option value="Partial">Partial Win 🟡</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="profitLossGroup" style="display: none;">
+                    <label>Profit/Loss ($)</label>
+                    <input type="number" id="profitLoss" step="0.01" placeholder="25.51">
+                </div>
+
                 <button type="submit" class="btn" id="addTradeBtn">Add Trade</button>
             </form>
         </div>
