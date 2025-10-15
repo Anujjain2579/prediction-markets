@@ -567,6 +567,7 @@
 
                 <button class="btn" onclick="saveConfig()">Save Configuration</button>
                 <button class="btn btn-secondary" onclick="testConnection()">Test Connection</button>
+                <button class="btn btn-secondary" onclick="loadDataFromGitHub()">Load Trade History</button>
             </div>
         </div>
 
@@ -778,7 +779,12 @@
             };
             localStorage.setItem('githubConfig', JSON.stringify(config));
             updateConfigStatus(true);
-            showStatus('configStatus', 'Configuration saved!', 'success');
+            showStatus('configStatus', 'Configuration saved! Loading trade history...', 'success');
+            
+            // Automatically load data after saving config
+            if (config.username && config.repo && config.token) {
+                loadDataFromGitHub();
+            }
         }
 
         function updateConfigStatus(configured) {
@@ -826,7 +832,12 @@
         }
 
         async function loadDataFromGitHub() {
-            if (!config.username || !config.repo || !config.token) return;
+            if (!config.username || !config.repo || !config.token) {
+                showStatus('configStatus', 'Please configure GitHub settings first', 'error');
+                return;
+            }
+
+            showStatus('configStatus', 'Loading trade history from GitHub...', 'info');
 
             try {
                 const response = await fetch(
@@ -848,14 +859,19 @@
                     updateStats();
                     renderTrades();
                     renderInsights();
+                    showStatus('configStatus', `Successfully loaded ${trades.length} trades and ${insights.length} insights!`, 'success');
                 } else if (response.status === 404) {
                     // File doesn't exist yet, initialize empty
                     trades = [];
                     insights = [];
+                    showStatus('configStatus', 'No existing data found. Ready to add your first trade!', 'info');
                     await saveDataToGitHub('Initial commit');
+                } else {
+                    showStatus('configStatus', 'Error loading data. Check your credentials.', 'error');
                 }
             } catch (error) {
                 console.error('Error loading data:', error);
+                showStatus('configStatus', 'Error: ' + error.message, 'error');
             }
         }
 
@@ -948,7 +964,14 @@
             const tradeList = document.getElementById('tradeList');
             
             if (trades.length === 0) {
-                tradeList.innerHTML = '<div class="empty-state">No trades yet. Add your first trade above!</div>';
+                tradeList.innerHTML = `
+                    <div class="empty-state">
+                        <p>No trades yet. Add your first trade above!</p>
+                        ${config.username && config.repo && config.token ? 
+                            '<button class="btn" onclick="loadDataFromGitHub()" style="margin-top: 15px;">Reload from GitHub</button>' 
+                            : ''}
+                    </div>
+                `;
                 return;
             }
             
@@ -1033,7 +1056,14 @@
             const insightsList = document.getElementById('insightsList');
             
             if (insights.length === 0) {
-                insightsList.innerHTML = '<div class="empty-state">No insights yet. Share your market understanding above!</div>';
+                insightsList.innerHTML = `
+                    <div class="empty-state">
+                        <p>No insights yet. Share your market understanding above!</p>
+                        ${config.username && config.repo && config.token ? 
+                            '<button class="btn" onclick="loadDataFromGitHub()" style="margin-top: 15px;">Reload from GitHub</button>' 
+                            : ''}
+                    </div>
+                `;
                 return;
             }
             
